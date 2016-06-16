@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  div(class='holder_shop')
+    div(class='shop_header') Magazin Phasians
+    div(class='shop_info')
+      span(class='username') #{username}
+      span(style='float:left;margin-left:20px')
+        img(src='/images/lifes.png', style='height:26px;position:relative;top:-5px;margin-left:5px;')
+        span(style='font-size:24px;position:relative;top:-5px') #{lifes}
+      div(class='detailes')
+        img(src='/images/money.jpg')
+        span #{money}

@@ -1,0 +1,44 @@
+extends layout
+
+block content
+  script(type='text/javascript') var money_t = #{money}; var level_t = #{level}; var username_t = '#{username}'; var lifes_t = #{lifes}; database_id_t = #{database_id};
+  script(src='javascripts/facebook_sdk.js', type='text/javascript')
+  script(src='javascripts/howler.js', type='text/javascript')
+  script(src='javascripts/main.js', type='text/javascript')  
+  div(class='message')
+  div(class='overlay') 
+    div(class='sidebar')
+      button(class='start_game') Porneste Jocul General
+      input(type='text', placeholder='Cauta User', class='search_user')
+      ul(class='users_list')
+      div(class='info_popup')
+      div(class='bottom_box')  
+        button(class='logout') Delogare
+        span &copy; Phasians - 2016
+    img(src='/images/swipe_down.png' class='swipe_down')
+    div(class='text_holder') <img src='/../images/loading.gif' />
+  div(class='ui')
+    div(class='level') #{level}
+    img(src='/images/level.jpg', class='level')
+    div(class='money') #{money}
+    img(src='/images/money.jpg', class='money')
+    img(src='/images/icon_timer.png', class='timer')
+    input(class='countdown', type='number', value='20', disabled='disabled')
+    div(class='lifes') #{lifes}
+  div(class='info')
+    div(class='holder_info')
+      button(class='give_up') Renunta la meci
+      span(class='info_text')
+  div(class='status')
+  div(class='content')
+    div(class='text')
+    input(type=text, class='text', placeholder='Cuvantul tau aici')
+    div(class='close_in')
+    button(class='send') Trimite
+    button(class='skip') Sari peste
+    audio(class='notification_audio')
+      source(src='/sound/notification.wav', type='audio/mpeg')
+    audio(class='alarm_audio')
+      source(src='/sound/alarm.mp3', type='audio/mpeg')    
+    audio(class='invitation_audio')
+      source(src='/sound/invitation.mp3', type='audio/mpeg')

@@ -1,0 +1,160 @@
+body,html {
+  margin:0;
+  padding:0px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  width:100%;
+  height:100%;
+  
+}
+
+div.text{width:100%;display:block;padding:5px;box-sizing:border-box;}
+div.ui{position:relative;top:0px;height:50px;background-color:#e8edf3;border-bottom:1px solid #9ad3de;display:block;width:100%;font-size:27px;padding:10px;box-sizing:border-box;font-family: 'Play', sans-serif;}
+div.ui div.money{float:right;width:auto;margin-right:30px;padding-left:5px;color:#62bcfa}
+div.ui div.level{float:right;width:auto;margin-right:10px;padding-left:5px;color:#3fb0ac}
+div.ui input{float:left;width:auto;margin-left:0px;padding-left:0px;color:#e62739;font-size:28px;border:none;box-sizing:border-box;width:50px;background-color:#e8edf3;text-align:left;font-family: 'Play', sans-serif;}
+div.ui div.lifes{float:left;width:25px;padding-left:30px;color:#e62739;font-size:28px;text-align:right;font-family: 'Play', sans-serif;background-image:url('/images/lifes.png'); background-position:left;background-repeat:no-repeat;position:relative;bottom:-1px}
+
+div.content{width:90%;position:relative;margin:auto;margin-top:50px;}
+
+div.content input.text{width:100%;padding:10px;font-size:10px;box-sizing:border-box;font-size:20px;font-family: 'Play', sans-serif;outline:none;color:#a9a9a9;margin-top:100px;}
+div.content div.text{color:#a9a9a9;width:100%;padding:10px;font-size:20px;font-family: 'Play', sans-serif;display:block;text-align:center;}
+div.content div.text span{color:#e62739}
+
+div.content button{margin-top:100px;}
+
+button.send{background-color:#3fb0ac;border:none;padding:10px;width:50%;color:#ffffff;font-family: 'Play', sans-serif;cursor:pointer;font-size:30px;border-top-left-radius:5px;border-bottom-left-radius:5px;display:inline-block;}
+button.skip{background-color:#e62739;border:none;padding:10px;width:50%;color:#ffffff;font-family: 'Play', sans-serif;cursor:pointer;font-size:30px;border-top-right-radius:5px;border-bottom-right-radius:5px;display:inline-block;}
+
+img.loading{position:relative;bottom:-2px;margin-right:10px;}
+
+
+div.status{position:fixed;right:20px;top:90px;width:32px;height:32px;display:block;background-image:url('/images/soundon.png');cursor:pointer;transition:all 0.2s ease}
+div.status:hover{-webkit-transform:scale(1.1); -moz-transform:scale(1.1)}
+div.status.stop:hover{-webkit-transform:scale(1.2); -moz-transform:scale(1.2)}
+div.status.stop{background-image:url('/images/soundoff.png');-webkit-transform:scale(1.1); -moz-transform:scale(1.1);height:32px;width:32px;}
+
+
+img.level{float:right;margin-top:6px;margin-right:5px}
+img.money{float:right;margin-top:6px;margin-right:5px;}
+
+/* landing page */
+div.right_holder{float:right;width:30%;background-color:#f4fafb;border:1px solid #e0e0e0;border-radius:2px;padding:10px;min-height:100px;margin-right:20px;margin-top:100px;box-sizing:border-box;}
+div.right_holder button{width:50%;float:left;border:none;padding:10px;font-family: 'Play', sans-serif;margin-bottom:5px;font-size:18px;cursor:pointer;background-color:#d6edf1;color:#3fb0ac}
+div.right_holder input{width:100%;background-color:#ffffff;border:1px solid #3fb0ac;color:#3fb0ac;font-size:16px;font-family: 'Play', sans-serif;padding:10px;box-sizing:border-box;margin-top:10px}
+
+div.right_holder button.send{width:100%;background-color:#3fb0ac;margin-top:20px;color:#ffffff}
+div.right_holder button.active{background-color:#3fb0ac;color:#ffffff}
+
+div.left_holder{width:65%;float:left;display:block;min-height:100px;background-color:#f4fafb;margin-top:100px;color:#878787;padding:20px;box-sizing:border-box;font-size:14px;font-family: 'Play', sans-serif;border:1px solid #e0e0e0}
+
+
+
+
+div.background{position:fixed;width:100%;height:100%;background-image:url('/images/bg.png');display:block;}
+div.container{width:90%;margin:auto;display:block;overflow:auto;}
+img.timer{width:33px;float:left;padding-right:5px;}
+
+div.message{color:#ffffff;background-color:#ea4a59;font-family: 'Play', sans-serif;text-align:center;padding:10px;box-sizing:border-box;font-size:20px;height:45px;position:fixed;bottom:-45px;width:100%;z-index:1200;}
+
+div.overlay{width:100%;height:100%;position:fixed;background-color:rgba(255,255,255,0.9);display:block;z-index:1000;margin:0;}
+
+button.start_game{background-color:#3fb0ac;border:none;padding:10px;width:100% !important;color:#ffffff;font-family: 'Play', sans-serif;cursor:pointer;font-size:18px;display:block;position:relative;}
+
+div.sidebar{display:block;float:left;background-color:#292c2f;width:30%;padding:10px;box-sizing:border-box;height:100%;position:relative;}
+
+div.start_holder{float:left;width:69%;display:block;height:auto;}
+
+input.search_user{background-color:#202225;border:none;color:#b0b5ba;font-family: 'Play', sans-serif;width:100%;outline:none;padding:10px;border-bottom:1px solid #323639;box-sizing:border-box;margin-top:20px;font-size:16px;}
+
+ul.users_list{display:block;background-color:#202225;padding:10px 0px 10px 0px;width:100%;box-sizing:border-box;list-style:none;max-height:calc(100% - 200px);overflow:auto;}
+ul.users_list li{padding:0px 10px 0px 10px;font-family: 'Play', sans-serif;color:#b0b5ba;border-top:1px solid #323639;padding-bottom:5px;padding-top:5px;cursor:pointer;}
+ul.users_list li:hover, ul.users_list li.active{background-color:#464a4c;cursor:pointer}
+ul.users_list li:nth-of-type(1){border-top:none}
+ul.users_list li span{width:10px;height:10px;border-radius:50%;float:right;background-color:#006600;margin-top:3px;}
+
+button.accept{background-color:#3fb0ac;padding:5px!important;color:#ffffff;text-transform:uppercase;border:none;font-family: 'Play', sans-serif;cursor:pointer;position:relative;top:-2px;left:10px !important;width:110px !important;box-sizing:border-box;font-size:14px!important}
+
+span.text{color:#b0b5ba;font-size:15px;padding:10px;display:block;font-family: 'Play', sans-serif;float:left;width:calc(100% -140px)}
+div.info{height:37px;width:100%;padding:10px;box-sizing:border-box;background-color:#8abdc7;color:#ffffff;font-family: 'Play', sans-serif;display:none;width:100%;text-align:center;}
+button.give_up{background-color:#6b939b;padding:10px;display:block;float:left;color:#ffffff;font-family: 'Play', sans-serif;border:none;position:relative;top:-10px;left:-10px;width:100px;font-size:14px !important;width:140px !important;}
+button.give_up:hover{background-color:#e62739;cursor:pointer;}
+
+span.info_text{width:calc(100% - 140px);display:block;float:left;}
+
+div.info_holder{width:100%;overflow:auto;}
+
+button.logout{color:#ffffff;font-family: 'Play', sans-serif;width:95% !important;padding:10px;display:block;background-color:#ad1422;border:none;font-size:18px;cursor:pointer;box-sizing:border-box;}
+button.logout:hover{background-color:#e62739}
+
+div.bottom_box{position:absolute;bottom:10px;width:100%;height:}
+div.bottom_box span{display:block;color:#b0b5ba;margin-top:10px;width:100%;text-align:center;}
+
+div.info_popup{padding:10px;background-color:#202225;display:block;width:100%;color:#b0b5ba;font-family: 'Play', sans-serif;min-height:20px;display:block;box-sizing:border-box;display:none}
+
+
+div.hover{width:350px;padding:20px;border:1px solid #e0e0e0;background-color:#ffffff;display:block;margin-left:50%;position:relative;left:-175px;margin-top:100px;}
+div.hover button{color:#ffffff;font-family: 'Play', sans-serif;width:120px !important;padding:10px;display:inline-block;background-color:#ad1422;border:none;font-size:18px;cursor:pointer;}
+div.hover input{background-color:#ffffff;border:1px solid #ad1422;color:#ad1422;font-size:16px;font-family: 'Play', sans-serif;padding:10px;box-sizing:border-box;margin-top:10px;width:225px;position:relative;top:-10px;float:left}
+span.lost_password{width:100%;display:block;text-align:center;margin-top:10px;font-size:17px;color:#ad1422;font-family: 'Play', sans-serif;float:left;cursor:pointer;}
+
+
+div.close_in{width:100%;font-family: 'Play', sans-serif;color:#a9a9a9;text-align:center;padding:10px;display:block;}
+
+
+/* swipe */
+img.swipe_down{display:none;position:relative;top:-320px;}
+
+/* jquery mobile fix */
+.ui-loader{display:none}
+
+
+/* menu  index */
+div.menu_holder{width:50%;margin:auto;display:block;margin-top:50px;}
+
+/*text holder */
+
+div.text_holder{width:70%;display:block;min-height:100px;color:#878787;margin-left:30%;padding:20px;box-sizing:border-box;font-size:14px;font-family: 'Play', sans-serif;}
+div.text_holder img{display:block;width:20px;margin:auto;margin-top:100px;}
+
+ul.collumns{
+  list-style-position: inside;
+  list-style:initial;
+  columns: 3;
+  -webkit-columns: 3;
+  -moz-columns: 3;
+  width:100%;
+}
+ul.collumns li{margin-left:15px;}
+
+/* shop */
+
+div.holder_shop{width:80%;margin:auto;display:block;min-height:200px;font-size:16px;font-family: 'Play', sans-serif;margin-top:50px;background-color:#f5f7fa;border:1px solid #e8edf3}
+div.shop_header{width:100%;display:block;padding:10px;text-align:center;box-sizing:border-box;background-color:#292c2f;border-top-left-radius:4px;border-top-right-radius:4px;color:#ffffff;}
+div.shop_info{width:100%;display:block;padding:10px;font-size:15px;box-sizing:border-box;background-color:#e8edf3;overflow:auto;height:38px;overflow:hidden;text-align:center;}
+div.shop_info span{color:#e62739;float:left;}
+div.shop_info .detailes{float:right;color:#62bcfa;font-size:26px;position:relative;top:-5px;}
+div.shop_info .detailes span{padding-left:10px;float:right;display:block;position:relative;top:-2px;color:#62bcfa}
+
+button#facebook {
+    margin-top:25px;
+    border-radius:5px;
+	text-transform:uppercase;
+    width:100%;
+	padding:10px 45px 10px 45px;
+    background: none;
+    border: none;
+    display: block;
+    background-size: 35px 35px;
+    background-position: right center;
+    background-repeat: no-repeat;
+    color: white;
+    font-family:'Play', sans-serif;
+    border-color: #2d5073;
+    background-color: #3b5998;
+    background-image: url(http://icons.iconarchive.com/icons/danleech/simple/512/facebook-icon.png);
+    box-sizing:border-box;
+	font-size:17px;
+	cursor:pointer;
+}
+
+

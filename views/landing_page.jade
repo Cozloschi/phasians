@@ -1,0 +1,23 @@
+extends layout
+
+block content 
+  script(src='javascripts/register.js', type='text/javascript')
+  script(src='javascripts/facebook_sdk.js', type='text/javascript')
+  div(class='overlay', style='background-color:rgba(255,255,255,0.6);display:none')
+    div(class='hover')
+      input(type=text, name='reset_password_email', placeholder='Email')
+      button(class='reset_password') Reseteaza
+  div(class='background')
+    div(class='container')
+      div(class='right_holder') 
+        form(class='reg_log')
+          button(class='log active') Logheaza
+          button(class='reg') Inregistreaza
+          input(type='username', name='username', placeholder='Username', style='display:none')
+          input(type='text', name='email', placeholder='E-mail')
+          input(type='password', name='password', placeholder='Parola')
+          input(type='password', name='confirm_password', placeholder='Confirma Parola',style='display:none')
+          button(class='send', name='send') TRIMITE
+          span(class='lost_password') Ai uitat parola ?
+          button(id='facebook', onclick='button_pressed_facebook(this)') Conecteaza-te
+      div(class='left_holder')
