@@ -101,7 +101,7 @@ var worker = function(){
 	  //playing type 2 == generally playing
 	  users[socket.id] = {'status':1, 'money':0, 'level':1, 'last_active':new Date().getTime(),'playing_type':0}; // status 0 = waiting for word, playing_type 2 = playing generally
 	  
-
+           
 	  
 	  //send connected users to client
 	  
@@ -109,11 +109,12 @@ var worker = function(){
 		if(users[userid].lifes > 0)
 		  disponible_users[userid] = users[userid]; //refresh disponible ussers
 	  }
-		//send disponible users to user
-		socket.on('give_me_users', function(data){
-		  io.sockets.connected[socket.id].emit('get_users',{'users': disponible_users});
-	  });
 	  
+          //send disponible users to user
+          /*
+          socket.on('give_me_users', function(data){
+	  });
+	  */
 	  
 	  //give up
 	  socket.on('give_up', function(data){
@@ -313,12 +314,16 @@ var worker = function(){
 		users[socket.id].money = data.money;
 		users[socket.id].level = data.level;
 		users[socket.id].lifes = data.lifes;
+                users[socket.id].lat = data.lat;
+                users[socket.id].lng = data.lng;
 		
 		if(data.lifes > 0)
 		  disponible_users[socket.id] = users[socket.id];
 		
 		save_user(users[socket.id]);
 	  
+                //announe other users
+                io.sockets.emit('get_users',{'users': disponible_users});
 	  });
 
 	  //on disconnect
@@ -358,6 +363,9 @@ var worker = function(){
 			
 		
 		});
+
+             
+             socket.broadcast.emit('get_users',{'users': disponible_users});
 		
 	  });
 	   

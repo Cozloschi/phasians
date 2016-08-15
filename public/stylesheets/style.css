@@ -101,6 +101,9 @@ span.lost_password{width:100%;display:block;text-align:center;margin-top:10px;fo
 div.close_in{width:100%;font-family: 'Play', sans-serif;color:#a9a9a9;text-align:center;padding:10px;display:block;}
 
 
+div.holder_cuvinte{position:fixed;width:100%;z-index:2000;background-color:rgba(00,00,00,0.5);color:#ffffff;padding:10px;box-sizing:border-box}
+ 
+
 /* swipe */
 img.swipe_down{display:none;position:relative;top:-320px;}
 
@@ -113,7 +116,7 @@ div.menu_holder{width:50%;margin:auto;display:block;margin-top:50px;}
 
 /*text holder */
 
-div.text_holder{width:70%;display:block;min-height:100px;color:#878787;margin-left:30%;padding:20px;box-sizing:border-box;font-size:14px;font-family: 'Play', sans-serif;}
+div.text_holder{width:70%;display:block;min-height:100px;color:#878787;margin-left:30%;box-sizing:border-box;font-size:14px;font-family: 'Play', sans-serif;}
 div.text_holder img{display:block;width:20px;margin:auto;margin-top:100px;}
 
 ul.collumns{
@@ -125,6 +128,12 @@ ul.collumns{
   width:100%;
 }
 ul.collumns li{margin-left:15px;}
+
+
+/* map holder landing page and moodal */
+
+#map_moodal{position:fixed;top:50px;right:50px;padding:10px;background-color:rgba(00,00,00,0.5);color:#ffffff; font-family: 'Play', sans-serif}
+
 
 /* shop */
 

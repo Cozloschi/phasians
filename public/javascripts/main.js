@@ -1,341 +1,411 @@
 var code = 'first';
- 
+
 $(document).ready(function(){
 
 
-  //setup headers for all ajax calls
-  $.ajaxSetup({
-	 headers: { 'x_csrf_token': $('meta[name="csrf-token"]').attr('content') }
-  });
+//setup headers for all ajax calls
+$.ajaxSetup({
+ headers: { 'x_csrf_token': $('meta[name="csrf-token"]').attr('content') }
+});
 
 
 
-  // VARS
-  var socket = {};
-  if(window.location.href.split('/')[3] == ''){
-	  var socket = new io('http://phasians.com:1337');
-  }
-  
-  
-  var myid;
-  var money = money_t ? money_t : 0; //load global var from template
-  var level = level_t ? level_t : 1; //load global var from template
-  var lifes =  lifes_t ? lifes_t : 3; // load globar var from template
-  var connected_users = {};
-  var username = username_t ? username_t : 'undefined';
-  var countdown = 20;
-  var countdown_stop = 1;
-  var can_send = 0;
-  var current_word = '';
-  var sound_on = 1; 
-  var my_database_id = database_id_t ? database_id_t : 0;  // load globar var from template
-  var playing_type = 0; //0, 1 , 2
-  var play_with = '';
-  var play_with_username = '';
-  var can_win = 0; // you can't win in the first minute
-  var can_win_in = 60;//seconds
-  
-  var moneyInterval;
-  
-  var can_win_interval;
-  
-  
-  //sounds
-  var notification = new Howl({
-    urls: ['sound/notification.wav']
-  });  
-  var alarm = new Howl({
-    urls: ['sound/alarm.mp3']
-  });
-  var invitation = new Howl({
-    urls: ['sound/invitation.mp3'],
-  });
-  
-  //if user have no database
-  if(my_database_id == 0) window.location.href = '/register';
-  
-  var life_options =  { no_lifes : lifes > 0 ? 0 : 1,
-                        text  : "Ai pierdut deja de 3 ori ! Pentru a invita prieteni la joc din nou, trebuie sa astepti 12 ore. Daca nu doresti sa astepti, poti trimite 6 invitatii prietenilor pe Facebook. <br /> <button id='facebook' > Trimite Invitatii </button>"}	 
+// VARS
+var socket = {};
+if(window.location.href.split('/')[3] == ''){
+  var socket = new io('http://phasians.com:1337');
+}
+
+
+var myid;
+var money = money_t ? money_t : 0; //load global var from template
+var level = level_t ? level_t : 1; //load global var from template
+var lifes =  lifes_t ? lifes_t : 3; // load globar var from template
+var connected_users = {};
+var username = username_t ? username_t : 'undefined';
+var countdown = 20;
+var countdown_stop = 1;
+var can_send = 0;
+var current_word = '';
+var sound_on = 1; 
+var my_database_id = database_id_t ? database_id_t : 0;  // load globar var from template
+var playing_type = 0; //0, 1 , 2
+var play_with = '';
+var play_with_username = '';
+var can_win = 0; // you can't win in the first minute
+var can_win_in = 60;//seconds
+
+var moneyInterval;
+
+var can_win_interval;
+
+var markers_on_map = {}; 
+
+//sounds
+var notification = new Howl({
+  urls: ['sound/notification.wav']
+});  
+var alarm = new Howl({
+  urls: ['sound/alarm.mp3']
+});
+var invitation = new Howl({
+  urls: ['sound/invitation.mp3'],
+});
+
+//if user have no database
+if(my_database_id == 0) window.location.href = '/register';
+
+var life_options =  { no_lifes : lifes > 0 ? 0 : 1,
+		text  : "Ai pierdut deja de 3 ori ! Pentru a invita prieteni la joc din nou, trebuie sa astepti 12 ore. Daca nu doresti sa astepti, poti trimite 6 invitatii prietenilor pe Facebook. <br /> <button id='facebook' > Trimite Invitatii </button>"}	 
 
 
 
 
-  //console.log(lifes);
-  if(lifes == 0){
-   info_popup(life_options.text);
-   //console.log('sadasda'); 
-  }
-  
-  socket.on('connect', function(){ //get my socket id
-    myid = socket.io.engine.id;
-  });
-  
-  
-  //beat
-  socket.on('beat', function(data){
-    message('L-ai inchis pe ' + data.username);
+//console.log(lifes);
+if(lifes == 0){
+  info_popup(life_options.text);
+  //console.log('sadasda'); 
+}
+
+socket.on('connect', function(){ //get my socket id
+  myid = socket.io.engine.id;
+});
+
+
+//beat
+socket.on('beat', function(data){
+message('L-ai inchis pe ' + data.username);
+
+setTimeout(function(){
+ 
+  stop_game(true);
+  socket.emit('status', {'status':0, 'id': myid, 'userid':myid, 'level':level, 'money': money, 'database':my_database_id, 'username':username, 'playing_type':playing_type, 'lifes':lifes});
+
+},2000);
+
+});
+
+//lost
+socket.on('lost', function(data){
+message('Ai fost inchis de ' + data.username);
+
+if(playing_type == 1){
+     
+	 lifes = lifes -1 > 0 ? lifes-1: 0;
+	 update_ui(money, level, 0, true, lifes);
+	 if(lifes == 0)
+	    info_popup(life_options.text);
+
+}
+
+setTimeout(function(){
+ 
+  stop_game(); 
+
+},2000);
+});
+
+//you where disconnected
+socket.on('you_were_disconnected',function(){
+  alert('Cineva s-a conectat cu contul tau, ai fost deconectat');
+});
+
+
+
+//give me users list
+//setTimeout(function(){
+//socket.emit('give_me_users',{});  
+//},2000);
+
+//give me users list every 10 seconds if i'm not playing
+/* setInterval(function(){
+if(playing_type == 0){
+  socket.emit('give_me_users', {});
+}
+},5000);
+*/
+socket.on('disconnected', function(data){ //user disconnected
+
+  message(data.username + ' s-a deconectat.');
+  stop_game(true);
+  playing_type = 0;
+  //change status
+  socket.emit('status', {'status':0, 'id': myid, 'userid':myid, 'level':level, 'money': money, 'database':my_database_id, 'username':username, 'playing_type':playing_type});
+
+});  
+
+socket.on('gave_up', function(data){ //user disconnected
+
+  message(data.username + ' a renuntat.');
+  stop_game(true);
+  playing_type = 0;
+  //change status
+  socket.emit('status', {'status':0, 'id': myid, 'userid':myid, 'level':level, 'money': money, 'database':my_database_id, 'username':username, 'playing_type':playing_type});
+
+});
+
+
+socket.on('get_users', function(data){ //when client 
+  connected_users = data.users;
+  if($('input.search_user').val() == ''){
+	//add list to tempalte
+	var $saved = $('ul.users_list');
 	
-	setTimeout(function(){
-	 
-	  stop_game(true);
-	  socket.emit('status', {'status':0, 'id': myid, 'userid':myid, 'level':level, 'money': money, 'database':my_database_id, 'username':username, 'playing_type':playing_type, 'lifes':lifes});
-      
-	},2000);
+	//mark all as unnactive 
+	$saved.find('li').each(function(){
+	  $(this).attr('innactive','1');
+	});
 	
-  });
-  
-  //lost
-  socket.on('lost', function(data){
-    message('Ai fost inchis de ' + data.username);
+	var i = $saved.find('li').length; 
 	
-	if(playing_type == 1){
-	     
-		 lifes = lifes -1 > 0 ? lifes-1: 0;
-		 update_ui(money, level, 0, true, lifes);
-		 if(lifes == 0)
-		    info_popup(life_options.text);
-
-	}
-	
-	setTimeout(function(){
-	 
-	  stop_game(); 
-
-	},2000);
-  });
-  
-  //you where disconnected
-  socket.on('you_were_disconnected',function(){
-    alert('Cineva s-a conectat cu contul tau, ai fost deconectat');
-  });
-
-  socket.emit('username-database', {'username':username, 'database':my_database_id, 'money':money, 'level': level, 'lifes':lifes}); //send username and database to server list
-
-  
-  //give me users list
-  socket.emit('give_me_users',{});  
-
-  
-  //give me users list every 10 seconds if i'm not playing
-  setInterval(function(){
-    if(playing_type == 0){
-	  socket.emit('give_me_users', {});
-	}
-  },5000);
-  
-  socket.on('disconnected', function(data){ //user disconnected
-    
-	message(data.username + ' s-a deconectat.');
-	stop_game(true);
-	playing_type = 0;
-	//change status
-	socket.emit('status', {'status':0, 'id': myid, 'userid':myid, 'level':level, 'money': money, 'database':my_database_id, 'username':username, 'playing_type':playing_type});
-
-  });  
-  
-  socket.on('gave_up', function(data){ //user disconnected
-    
-	message(data.username + ' a renuntat.');
-	stop_game(true);
-	playing_type = 0;
-	//change status
-	socket.emit('status', {'status':0, 'id': myid, 'userid':myid, 'level':level, 'money': money, 'database':my_database_id, 'username':username, 'playing_type':playing_type});
-
-  });
-  
-  
-  socket.on('get_users', function(data){ //when client 
-    console.log(data);
-	connected_users = data.users;
-	if($('input.search_user').val() == ''){
-		//add list to tempalte
-		var $saved = $('ul.users_list');
-		
-		//mark all as unnactive 
-		$saved.find('li').each(function(){
-		  $(this).attr('innactive','1');
-		});
-		
-		var i = $saved.find('li').length; 
-		
-		$.each(connected_users,function(key, user){
-		  if(typeof user.username !== 'undefined' && myid !== key){
-			if(++i >= 20) return; //limit to 20 users to show
-			if($saved.find('li#'+key).length == 0)
-			 $('ul.users_list').append("<li innactive='0' database_id='"+user.database+"' id='"+key+"'>"+user.username+" <span class='active'></span></li>");
-		    else
-			 $saved.find('li#'+key).attr('innactive','0');
-			}
-	    });
-
-		//add no results
-        if(i == 0) $('ul.users_list').html('<span class="text">Nu sunt utilizatori online</span>');		
-		else{
-		  $('span.text').remove();
-		  //read the new html and delete unnecesary <li>
-		  $('ul.users_list').find('li').each(function(){
-		    if($(this).attr('innactive') == '1')
-		      $(this).remove();
-		  });
+	$.each(connected_users,function(key, user){
+	  if(typeof user.username !== 'undefined'){
+		if(++i >= 20) return; //limit to 20 users to show
+		if($saved.find('li#'+key).length == 0){
+		  $('ul.users_list').append("<li innactive='0' database_id='"+user.database+"' id='"+key+"'>"+user.username+" <span class='active'></span></li>");
+		  addMarker({lat : user.lat , lng: user.lng}, user.database, user.username, key); //add marker
+		}else{
+		  $saved.find('li#'+key).attr('innactive','0');
+		  markers_on_map[user.database].marker.setMap(map); //remove marker
 		}
-	}
-  });
-  
-  
-  socket.on('invitation_recivied', function(data){
-   
-     if(sound_on == 1)
-	  play_sound_invitation();
-  
-     message(data.from.username +' te invita. <button accept_id="'+ data.socket_id +'" class="accept"> Accepta [ <span class="count_invitation">10</span> ]', true);
-     
-	 play_with_username = data.from.username;
-	 
-	 var $span = $('span.count_invitation');
-	 var countDown_interval = setInterval(function(){
-	   
-	   if(Number($span.text()) == 0){
-	    clearInterval(countDown_interval);
-	    hide_message();
-		socket.emit('send_invitation_status', {'to': $('button.accept').attr('accept_id'),'status':'500'});
-	   }else
-	    $span.text(Number($span.text()) -1);
-	   
-	 },1000);
-	 
-  });
-  
-  socket.on('invitation_status', function(data){
-    var $button  = $('button.start_game');
-	  
-	if(data.status == '500'){
-	  $('ul.users_list li.active').removeClass('active');
-	  $button.text('Userul nu raspunde.').removeAttr('disabled');
-	  
-	  setTimeout(function(){
-	    $button.text('Porneste Jocul General');
-	  },3000);
-	}else{
-	  
-	  //show info message
-	  info('Acum joci cu ' +play_with_username);
-	
-
-	  $button.text('Incepe jocul..');
-	  
-	  playing_type = 1;
-	  play_with = $button.attr('play_with');
-	  
-	  console.log(play_with);
-	  
-	  
-	  setTimeout(function(){
-	  
-	    $button.text('Porneste jocul general ... ');
-	    socket.emit('start_game',{'playing_type':playing_type, 'play_with':play_with});
-	    start_game();
-	    
-		
-	  },1000);
-	
-	}
-  });
-  
-  // ====================================================================== UI 
-  
-  
-  
-  //swipe for mobile 
-  $('div.overlay').on('swipedown',function(){ $('div.sidebar').addClass('open'); } );
-  $('div.overlay').on('swipeup',function(){ $('div.sidebar').removeClass('open'); } );
-  
-  
-  
-  //logout
-  
-  $(document).on('click','button.logout', function(){
-    
-	var $saved = $(this);
-	
-	$saved.text('Se incarca..');
-	
-	$.post('/api',{'action':'logout'}, function(response){
-	  
-	  if(response.status == 'done')
-	    window.location.href = '/register';
-	  else
-	    $saved.text('Eroare..');
-	  
-	},'JSON');
-	
-   
-  });
-  
-  // search for users
-  $(document).on('keyup', 'input.search_user', function(){
-     
-	 if(life_options.no_lifes == 0){
-		 var search_w = $(this).val();
-		 $('ul.users_list').html('');
-		 var i = 0;
-		 console.log(connected_users);
-		 $.each(connected_users,function(key, user){
-		   if(typeof user.username !== 'undefined' && (user.username.toLowerCase().search(search_w.toLowerCase()) > -1)){
-			 $('ul.users_list').append("<li database_id='"+user.id+"' id='"+key+"'>"+user.username+" <span class='active'></span></li>");
-			 if(++i >= 20) return; //limit to 50 users to show
-		   }
-		 });
-		 
-		 if(i == 0) $('ul.users_list').html('<span class="text">Fara rezultate</span>');
-     }
-	 
-      
-  });
-  
-  //give up
-  $(document).on('click','button.give_up', function(){
-    playing_type = 0;
-	if(play_with != ''){
-	  
-      socket.emit('give_up',{'to':play_with});
-	  lifes = lifes >= 1 ? lifes - 1 : 0; 
-	  update_ui(money, level, 0, true, lifes);
-	  if(lifes == 0){
-	     life_options.no_lifes = 1;
-		 info_popup(life_options.text);
 	  }
-	  
-	}
-    stop_game();
-  });
-  
-  //accept invitation
-  $(document).on('click','button.accept', function(){
+    });
 
-    //show info message
-	info('Acum joci cu ' +play_with_username);
+	//add no results
+    if(i == 0) $('ul.users_list').html('<span class="text">Nu sunt utilizatori online</span>');		
+	else{
+	  $('span.text').remove();
+	  //read the new html and delete unnecesary <li>
+	  $('ul.users_list').find('li').each(function(){
+	    if($(this).attr('innactive') == '1')
+	      $(this).remove();
+	  });
+	}
+  }
+});
+
+
+socket.on('invitation_recivied', function(data){
+
+if(sound_on == 1)
+  play_sound_invitation();
+
+message(data.from.username +' te invita. <button accept_id="'+ data.socket_id +'" class="accept"> Accepta [ <span class="count_invitation">10</span> ]', true);
+
+ play_with_username = data.from.username;
+ 
+ var $span = $('span.count_invitation');
+ var countDown_interval = setInterval(function(){
+   
+   if(Number($span.text()) == 0){
+    clearInterval(countDown_interval);
+    hide_message();
+	socket.emit('send_invitation_status', {'to': $('button.accept').attr('accept_id'),'status':'500'});
+   }else
+    $span.text(Number($span.text()) -1);
+   
+ },1000);
+ 
+});
+
+socket.on('invitation_status', function(data){
+var $button  = $('button.start_game');
+  
+if(data.status == '500'){
+  $('ul.users_list li.active').removeClass('active');
+  $button.text('Userul nu raspunde.').removeAttr('disabled');
+  
+  setTimeout(function(){
+    $button.text('Porneste Jocul General');
+  },3000);
+}else{
+  
+  //show info message
+  info('Acum joci cu ' +play_with_username);
+
+
+  $button.text('Incepe jocul..');
+  
+  playing_type = 1;
+  play_with = $button.attr('play_with');
+  
+  console.log(play_with);
+  
+  
+  setTimeout(function(){
+  
+    $button.text('Porneste jocul general ... ');
+    socket.emit('start_game',{'playing_type':playing_type, 'play_with':play_with});
+    start_game();
+    
 	
+  },1000);
+
+}
+});
+
+// ====================================================================== UI 
+
+// close text_holder
+$(document).on('click','div.holder_cuvinte', function(){
+  $(this).remove();
+});
+
+// modal box for map 
+
+window.mapMoodal = {
+  element : document.getElementById('map_moodal'),
+  show : function(html){
+    $(mapMoodal.element).html(html).show();
+  },
+  hide : function(){
+    $(mapMoodal.element).hide();
+  }
+
+}
+
+if(!localStorage['map_location']){
+  mapMoodal.show("Va rugam introduceti adresa dvs. pentru a putea incarca jucatorii : <input type='text' name='adress' placeholder='Adresa' />");
+}
+
+$(document).on('keypress','input[name=adress]', function(event){
+  if(event.keyCode == 13){
+    localStorage['map_location'] = $(this).val();
+  }
+});
+
+//add google maps on page load 
+window.initMap  = function(){
+  var map_element = document.getElementsByClassName('text_holder')[0];
+  $(map_element).css('height','100%');
+  window.map = new google.maps.Map(map_element, {
+    center : { lat : -34.397, lng: 150.1644 },
+    scrollwhell: false,
+    zoom:10,
+  });
+
+  $.post('https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyC32I2Lp55Xy2NBqkihhc00ft5IbaH7gFU', function(response){
+   if(response.location){
+    map.setCenter(response.location);
+
+    socket.emit('username-database', {'username':username, 'database':my_database_id, 'money':money, 'level': level, 'lifes':lifes, 'lat': response.location.lat, 'lng': response.location.lng}); //send username and database to server list
+   }
+  },'JSON');
+
+};
+
+window.addMarker = function(location, id, name, socket){
+  console.log(location);
+  var marker = new google.maps.Marker({
+    position:location,
+    map: map,
+    title: name
+  });
+
+  marker.addListener('click', function(){
+    $('button.start_game').attr('play_with', socket).text('Joaca cu '+name);
+    $('ul#users_list').find('li.active').each(function(){
+      $(this).removeClass('active');
+    });
+    $('li#'+socket).addClass('active');
+  });
+
+  markers_on_map[id] = {location: location, marker : marker, name: name};
+
+}
+initMap();
+
+//swipe for mobile 
+$('div.overlay').on('swipedown',function(){ $('div.sidebar').addClass('open'); } );
+$('div.overlay').on('swipeup',function(){ $('div.sidebar').removeClass('open'); } );
+
+
+
+//logout
+
+$(document).on('click','button.logout', function(){
+
+var $saved = $(this);
+
+$saved.text('Se incarca..');
+
+$.post('/api',{'action':'logout'}, function(response){
+  
+  if(response.status == 'done')
+    window.location.href = '/register';
+  else
+    $saved.text('Eroare..');
+  
+},'JSON');
+
+
+});
+
+// search for users
+$(document).on('keyup', 'input.search_user', function(){
+
+ if(life_options.no_lifes == 0){
+	 var search_w = $(this).val();
+	 $('ul.users_list').html('');
+	 var i = 0;
+	 console.log(connected_users);
+	 $.each(connected_users,function(key, user){
+	   if(typeof user.username !== 'undefined' && (user.username.toLowerCase().search(search_w.toLowerCase()) > -1)){
+		 $('ul.users_list').append("<li database_id='"+user.id+"' id='"+key+"'>"+user.username+" <span class='active'></span></li>");
+		 if(++i >= 20) return; //limit to 50 users to show
+	   }
+	 });
+	 
+	 if(i == 0) $('ul.users_list').html('<span class="text">Fara rezultate</span>');
+}
+ 
+
+});
+
+//give up
+$(document).on('click','button.give_up', function(){
+playing_type = 0;
+if(play_with != ''){
+  
+socket.emit('give_up',{'to':play_with});
+  lifes = lifes >= 1 ? lifes - 1 : 0; 
+  update_ui(money, level, 0, true, lifes);
+  if(lifes == 0){
+     life_options.no_lifes = 1;
+	 info_popup(life_options.text);
+  }
+  
+}
+stop_game();
+});
+
+//accept invitation
+$(document).on('click','button.accept', function(){
+
+	//show info message
+	info('Acum joci cu ' +play_with_username);
+
 	//hide skip button
 	$('button.skip').hide();
 	$('button.send').css('width','100%');
-  
-    playing_type = 1; //playing with someone
-	
+
+	playing_type = 1; //playing with someone
+
 	socket.emit('send_invitation_status', {'to':$(this).attr('accept_id'), 'status':'200'});
-	
+
 	play_with = $(this).attr('accept_id');
-	
+
 	socket.emit('start_game',{'playing_type':playing_type, 'play_with':play_with});
 	start_game();
-	
+
 	hide_message();
-	
-  });
-  
-  //click the user
-  $(document).on('click','ul.users_list li',function(){
-  
-    if(life_options.no_lifes == 0){
+
+});
+
+//click the user
+$(document).on('click','ul.users_list li',function(){
+
+	if(life_options.no_lifes == 0){
 		var user = $(this).text();
 		if($(this).hasClass('active')){
 		  $(this).removeClass('active');
@@ -348,117 +418,122 @@ $(document).ready(function(){
 		  $(this).addClass('active');
 		  play_with_username = user;
 		}
-    }else{
+	}else{
 	    $(this).hide();
 	    info_popup(life_options.text);
 	}
-	
+
 	return;
-  });
+});
+
+//nicescroll
+$("ul.users_list").niceScroll();
+
+//start the game generally
+$('button.start_game').click(function(){
+
+if(!$(this).attr('play_with')){ // play generally
   
-  //nicescroll
-  $("ul.users_list").niceScroll();
+  info('Joc General');
   
-  //start the game generally
-  $('button.start_game').click(function(){
-	
-	if(!$(this).attr('play_with')){ // play generally
-	  
-	  info('Joc General');
-	  
-	  //show sari_peste button
-	  
-      $('button.skip').show();
-	  $('button.send').css('width','50%');
-	  
-	  //change status
-	  playing_type = 2;
-	  start_game();
-      socket.emit('start_game',{'playing_type':playing_type});	
-    }else{ //play with someone
-	  //hide 'sari peste' button
-      $('button.skip').hide();
-	  $('button.send').css('width','100%');
-	   
-	  //change status
-	  $(this).text('Invitatie trimisa, asteptati.').attr('disabled',true);
-	  socket.emit('send_invitation', {'to': $(this).attr('play_with')});
+  //show sari_peste button
+  
+$('button.skip').show();
+  $('button.send').css('width','50%');
+  
+  //change status
+  playing_type = 2;
+  start_game();
+socket.emit('start_game',{'playing_type':playing_type});	
+}else{ //play with someone
+  //hide 'sari peste' button
+$('button.skip').hide();
+  $('button.send').css('width','100%');
+   
+  //change status
+  $(this).text('Invitatie trimisa, asteptati.').attr('disabled',true);
+  socket.emit('send_invitation', {'to': $(this).attr('play_with')});
+}
+});
+
+//clear input on click
+$('input.text').click(function(){ $(this).val(''); });
+
+//send on enter
+$('input.text').keypress(function(e) {
+if(e.which == 13) {
+	 $('button.send').trigger('click');
 	}
-  });
-  
-  //clear input on click
-  $('input.text').click(function(){ $(this).val(''); });
-  
-  //send on enter
-  $('input.text').keypress(function(e) {
-        if(e.which == 13) {
-		 $('button.send').trigger('click');
-		}
-  });
-  
-  $('div.status').click(function(){
-    if($(this).hasClass('stop')){
-	  $(this).removeClass('stop');
-	  //sound on
-	  sound_on = 1;
-	}
-	else{
-	  //sound off
-	  sound_on = 0;
-	  $(this).addClass('stop');
-	}
-  });
-  
-  //invite facebook friends
-  $(document).on('click','button#facebook',function(){
-    FB.ui({ method: 'apprequests', 
-     message: 'Incearca si tu jocul Phasians. Ai jucat cand erai mic celebrul joc Fazan ? Phasians e acelasi lucru, e fazanul copilariei tale adaptat pentru vremurile noastre.'}, function(response){
-        if(response.to){
-			var invitations = Math.ceil(response.to.length/2);
-			if(invitations > 6)
-			 invitations = 3;
-			if(invitations > 0){
-			  $.post('/api',{'action':'set_no_life_time','timestamp': new Date().getTime(), 'invitations':invitations}, function(response){
+});
+
+$('div.status').click(function(){
+if($(this).hasClass('stop')){
+  $(this).removeClass('stop');
+  //sound on
+  sound_on = 1;
+}
+else{
+  //sound off
+  sound_on = 0;
+  $(this).addClass('stop');
+}
+});
+
+//invite facebook friends
+$(document).on('click','button#facebook',function(){
+  FB.ui({ method: 'apprequests', 
+  message: 'Incearca si tu jocul Phasians. Ai jucat cand erai mic celebrul joc Fazan ? Phasians e acelasi lucru, e fazanul copilariei tale adaptat pentru vremurile noastre.'}, function(response){
+  if(response.to){
+		var invitations = Math.ceil(response.to.length/2);
+		if(invitations > 6)
+		 invitations = 3;
+		if(invitations > 0){
+		  $.post('/api',{'action':'set_no_life_time','timestamp': new Date().getTime(), 'invitations':invitations}, function(response){
+		   
+			if(response.status == 'done'){
+			
+			   $('div.info_popup').hide();
+			   $('ul.users_list').show();
 			   
-				if(response.status == 'done'){
-				
-				   $('div.info_popup').hide();
-				   $('ul.users_list').show();
-				   
-				   life_options.no_lifes = 1;
-				   
-				}
-			 
-			  });
+			   life_options.no_lifes = 1;
+			   
 			}
-	   }
-     });
-  });
-  
-  
-  //used words
-  if(typeof localStorage['used_words'] == 'undefined')
-    localStorage['used_words'] = '';      
-  
-  //============================================== functions
-  
-  function waiting(){
-    $('div.text').html(" <img src='/images/loading.gif' class='loading' /> Se asteapta cuvantul ..");  
-  }
-  
-  function stop_game(won){
-  
-    //check if is last word
-	var $word = $('div.text');
-	
-	$('button.start_game').removeAttr('disabled');
-	
-	if(!won){
-		if($word.find('img').length == 0){
-		  $.get('/api', {'action':'get_words', 'word': $word.text().split(':')[0].trim()},function(response){
-			$('div.text_holder').html("<h1>Puteati folosi urmatoarele cuvinte pentru a raspunde : </h1> <ul class='collumns'>"+response.output_html+"</ul>");
-		  },'JSON');
+		 
+		  });
 		}
+   }
+  });
+});
+
+
+//used words
+if(typeof localStorage['used_words'] == 'undefined')
+localStorage['used_words'] = '';      
+
+//============================================== functions
+
+function waiting(){
+  $('div.text').html(" <img src='/images/loading.gif' class='loading' /> Se asteapta cuvantul ..");  
+}
+
+function stop_game(won){
+
+//check if is last word
+var $word = $('div.text');
+
+$('button.start_game').removeAttr('disabled');
+
+if(!won){
+	if($word.find('img').length == 0){
+	  $.get('/api', {'action':'get_words', 'word': $word.text().split(':')[0].trim()},function(response){
+		$('div.text_holder').prepend("<div class='holder_cuvinte'><h1>Puteati folosi urmatoarele cuvinte pentru a raspunde : </h1> <ul class='collumns'>"+response.output_html+"</ul> </div>");
+	  },'JSON');
+
+          //remove after 10 seconds
+          setTimeout(function(){
+            $('div.holder_cuvinte').remove();
+          },10000);
+	}
     }else{
       $('div.text_holder').html("<h1 style='text-align:center'>Ai castigat! </h1>");
     }	
